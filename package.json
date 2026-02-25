@@ -20,7 +20,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --clean",
-    "dev": "tsup src/index.ts --format cjs,esm --watch"
+    "dev": "tsup src/index.ts --format cjs,esm --watch",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "@jsondb-cloud/client": "*",
