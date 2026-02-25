@@ -18,18 +18,13 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: Set version 1.0.{build}
+      - name: Set version
         env:
           BUILD_NUMBER: ${{ github.run_number }}
         run: npm version "1.0.${BUILD_NUMBER}" --no-git-tag-version
 
-      - name: Build
-        run: npx tsup src/index.ts --format cjs,esm --clean
+      - run: npx tsup src/index.ts --format cjs,esm --clean
 
-      - name: Publish
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --provenance --access public
