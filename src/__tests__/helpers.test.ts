@@ -4,9 +4,7 @@ describe("MCP response format", () => {
   it("success format wraps data as JSON text content", () => {
     const data = { id: "123", name: "test" };
     const result = {
-      content: [
-        { type: "text" as const, text: JSON.stringify(data, null, 2) },
-      ],
+      content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
     };
     expect(result.content).toHaveLength(1);
     expect(result.content[0].type).toBe("text");

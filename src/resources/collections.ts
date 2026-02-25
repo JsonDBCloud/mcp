@@ -1,4 +1,4 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { JsonDB } from "@jsondb-cloud/client";
 
 /**
@@ -14,7 +14,6 @@ export function registerCollectionResources(server: McpServer, db: JsonDB): void
     "collections-list",
     "jsondb://collections",
     {
-      name: "jsondb.cloud Collections",
       description:
         "List of all collections in the current project. Use this to discover what data is available.",
       mimeType: "application/json",
@@ -80,16 +79,17 @@ export function registerCollectionResources(server: McpServer, db: JsonDB): void
   // Resource template: schema for a specific collection
   server.resource(
     "collection-schema",
-    "jsondb://collections/{collection}/schema",
+    new ResourceTemplate("jsondb://collections/{collection}/schema", { list: undefined }),
     {
-      name: "Collection Schema",
       description:
         "JSON Schema for a specific collection (if set). Helps AI agents understand the expected document structure.",
       mimeType: "application/json",
     },
-    async (uri, params) => {
+    async (uri: URL, variables: Record<string, string | string[]>) => {
       const collection =
-        typeof params.collection === "string" ? params.collection : String(params.collection);
+        typeof variables.collection === "string"
+          ? variables.collection
+          : String(variables.collection);
       try {
         const coll = db.collection(collection);
         const schema = await coll.getSchema();

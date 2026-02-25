@@ -49,9 +49,7 @@ describe("document tool handlers", () => {
     const server = createMockServer();
     const db = createMockDb();
     db.collection.mockReturnValue({
-      create: vi
-        .fn()
-        .mockRejectedValue({ status: 409, message: "conflict" }),
+      create: vi.fn().mockRejectedValue({ status: 409, message: "conflict" }),
     });
     registerDocumentTools(server, db);
     const handler = getHandler(server, "create_document");
@@ -96,9 +94,7 @@ describe("document tool handlers", () => {
     const server = createMockServer();
     const db = createMockDb();
     db.collection.mockReturnValue({
-      create: vi
-        .fn()
-        .mockRejectedValue({ status: 400, message: "invalid field" }),
+      create: vi.fn().mockRejectedValue({ status: 400, message: "invalid field" }),
     });
     registerDocumentTools(server, db);
     const handler = getHandler(server, "create_document");

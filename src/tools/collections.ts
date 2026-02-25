@@ -38,7 +38,7 @@ function error(
  *   { field: { $gt: value } }    for operators
  */
 export function buildFilterObject(
-  filters: { field: string; operator: string; value: unknown }[],
+  filters: { field: string; operator: string; value?: unknown }[],
 ): Record<string, unknown> {
   const filterObj: Record<string, unknown> = {};
 
@@ -153,7 +153,7 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
         const coll = db.collection(collection);
         const filterObj = buildFilterObject(filters);
         const result = await coll.list({
-          filter: filterObj,
+          filter: filterObj as any,
           sort,
           limit,
           offset,
