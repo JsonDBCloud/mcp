@@ -1,0 +1,658 @@
+# @jsondb-cloud/mcp — Full API Reference
+
+> MCP (Model Context Protocol) server for jsondb.cloud — a hosted JSON document database. Lets AI agents create, query, and manage documents through natural language.
+
+## Install
+
+```bash
+npx -y @jsondb-cloud/mcp
+```
+
+Or install permanently:
+
+```bash
+npm install @jsondb-cloud/mcp
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable         | Required | Default                    | Description                                      |
+|------------------|----------|----------------------------|--------------------------------------------------|
+| JSONDB_API_KEY   | Yes      | —                          | API key (jdb_sk_live_... or jdb_sk_test_...)     |
+| JSONDB_PROJECT   | No       | v1                         | Project namespace                                |
+| JSONDB_BASE_URL  | No       | https://api.jsondb.cloud   | API base URL                                     |
+
+### MCP Client Setup
+
+Works with any MCP-compatible client (Claude Desktop, Claude Code, Cursor, Windsurf, etc.):
+
+```json
+{
+  "mcpServers": {
+    "jsondb": {
+      "command": "npx",
+      "args": ["-y", "@jsondb-cloud/mcp"],
+      "env": {
+        "JSONDB_API_KEY": "jdb_sk_live_..."
+      }
+    }
+  }
+}
+```
+
+Claude Code CLI:
+
+```bash
+claude mcp add jsondb -- npx -y @jsondb-cloud/mcp \
+  --env JSONDB_API_KEY=jdb_sk_live_...
+```
+
+---
+
+## Response Format
+
+All tools return responses in this format:
+
+### Success
+
+```json
+{
+  "content": [{ "type": "text", "text": "<JSON-stringified result>" }]
+}
+```
+
+### Error
+
+```json
+{
+  "content": [{ "type": "text", "text": "<JSON-stringified error>" }],
+  "isError": true
+}
+```
+
+Error payload structure:
+
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable description",
+    "suggestion": "What to do next"
+  }
+}
+```
+
+---
+
+## Document Tools
+
+### create_document
+
+Create a new JSON document in a collection. Returns the created document with auto-generated _id, $createdAt, $updatedAt, and $version metadata.
+
+**Parameters:**
+- `collection` (string, required) — The collection name (e.g., "users", "posts", "settings")
+- `data` (object, required) — The JSON document to store. Can contain any valid JSON.
+- `id` (string, optional) — Custom document ID. If not provided, an ID is auto-generated.
+
+**Error codes:**
+- `DOCUMENT_CONFLICT` (409) — A document with this ID already exists. Use update_document to replace, or omit id to auto-generate.
+- `DOCUMENT_TOO_LARGE` (413) — Document exceeds maximum size. Free: 16 KB, Pro: 1 MB.
+- `VALIDATION_ERROR` (400) — Document failed schema validation. Use get_schema to see the required schema.
+- `CREATE_FAILED` — General creation failure.
+
+**Example:**
+
+```
+create_document({ collection: "users", data: { name: "Alice", role: "admin" } })
+→ { "_id": "abc123", "name": "Alice", "role": "admin", "$createdAt": "...", "$updatedAt": "...", "$version": 1 }
+```
+
+### get_document
+
+Read a single document by ID. Returns the full document including metadata fields.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID to retrieve
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found. Use list_documents to see available documents.
+- `GET_FAILED` — General retrieval failure.
+
+### list_documents
+
+List documents with optional filtering, sorting, and pagination. Returns a paginated response with data array and metadata (total count, hasMore).
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `filter` (object, optional) — Filter criteria. Keys are field names, values are match values. Use {field: {$gt: N}} for comparisons.
+- `sort` (string, optional) — Field to sort by. Prefix with "-" for descending (e.g., "-$createdAt").
+- `limit` (number, optional) — Max documents to return (default: 20, max: 100).
+- `offset` (number, optional) — Number of documents to skip for pagination.
+- `select` (string[], optional) — Field names to return. Omit to return all fields. Example: ["name", "email", "$createdAt"].
+
+**Error codes:**
+- `LIST_FAILED` — General listing failure.
+
+### update_document
+
+Replace a document entirely. The new data replaces all existing fields (except metadata). Use patch_document for partial updates.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID to replace
+- `data` (object, required) — The complete new document data. Replaces all existing fields.
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found. Use create_document to create a new one.
+- `VALIDATION_ERROR` (400) — Failed schema validation.
+- `UPDATE_FAILED` — General update failure.
+
+### patch_document
+
+Partially update a document using merge patch. Only provided fields are updated; other fields remain unchanged. Preferred over update_document when changing a few fields.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID to patch
+- `data` (object, required) — The fields to update. Only these fields are modified.
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found.
+- `VALIDATION_ERROR` (400) — Patched document failed schema validation.
+- `PATCH_FAILED` — General patch failure.
+
+### delete_document
+
+Delete a document by ID. This action is permanent and cannot be undone.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID to delete
+
+**Returns:** `{ deleted: true, _id: "...", collection: "..." }`
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found (may have already been deleted).
+- `DELETE_FAILED` — General deletion failure.
+
+### count_documents
+
+Count documents, optionally filtered. Returns a single number. Use this instead of list_documents when you only need a count.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `filter` (object, optional) — Filter criteria. Same format as list_documents.
+
+**Returns:** `{ collection: "...", count: N }`
+
+**Error codes:**
+- `COUNT_FAILED` — General count failure.
+
+### json_patch_document
+
+Apply RFC 6902 JSON Patch operations. Supports: add, remove, replace, move, copy, test. Use patch_document for simple merges; use this for precise structural mutations like array element updates.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID to patch
+- `operations` (array, required) — Array of JSON Patch operations:
+  - `op` (string, required) — One of: "add", "remove", "replace", "move", "copy", "test"
+  - `path` (string, required) — JSON Pointer path (e.g., "/name", "/tags/0")
+  - `value` (any, optional) — Value for add/replace/test operations
+  - `from` (string, optional) — Source path for move/copy operations
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found.
+- `PATCH_CONFLICT` (409) — A "test" operation failed or a path conflict occurred.
+- `VALIDATION_ERROR` (400) — Patched document failed schema validation.
+- `JSON_PATCH_FAILED` — General patch failure.
+
+**Example:**
+
+```
+json_patch_document({
+  collection: "users",
+  id: "abc123",
+  operations: [
+    { op: "replace", path: "/role", value: "superadmin" },
+    { op: "add", path: "/tags/0", value: "vip" }
+  ]
+})
+```
+
+---
+
+## Collection Tools
+
+### list_collections
+
+List all collections in the current project. Returns collection names that contain documents. Use this to discover what data is available before querying.
+
+**Parameters:** None
+
+**Error codes:**
+- `LIST_COLLECTIONS_FAILED` — Verify JSONDB_API_KEY and JSONDB_PROJECT are set correctly.
+
+### search_documents
+
+Search for documents matching specific criteria. Supports multiple filter operators combined with AND logic.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `filters` (array, required) — Array of filter conditions:
+  - `field` (string) — Field path (supports dot notation for nested fields)
+  - `operator` (string) — One of: "eq", "neq", "gt", "gte", "lt", "lte", "contains", "in", "exists"
+  - `value` (any) — Value to compare against
+- `sort` (string, optional) — Field to sort by. Prefix with "-" for descending.
+- `limit` (number, optional) — Max documents to return (default: 20, max: 100).
+- `offset` (number, optional) — Number of documents to skip for pagination.
+
+**Filter Operators:**
+
+| Operator   | Description                              | Example value      |
+|------------|------------------------------------------|--------------------|
+| eq         | Equals                                   | "active"           |
+| neq        | Not equals                               | "deleted"          |
+| gt         | Greater than                             | 18                 |
+| gte        | Greater than or equal                    | 21                 |
+| lt         | Less than                                | 100                |
+| lte        | Less than or equal                       | 99                 |
+| contains   | Case-insensitive substring match         | "alice"            |
+| in         | Value is in list                         | ["admin", "mod"]   |
+| exists     | Field exists (true) or is absent (false) | true               |
+
+**Error codes:**
+- `SEARCH_FAILED` — Verify collection name and filter syntax.
+
+**Example:**
+
+```
+search_documents({
+  collection: "users",
+  filters: [
+    { field: "role", operator: "eq", value: "admin" },
+    { field: "age", operator: "gte", value: 21 }
+  ],
+  sort: "-$createdAt",
+  limit: 10
+})
+```
+
+### import_documents
+
+Bulk import multiple documents at once. More efficient than creating one by one.
+
+**Parameters:**
+- `collection` (string, required) — The collection name to import into
+- `documents` (array, required) — Array of JSON documents to import
+- `onConflict` (string, optional) — How to handle ID conflicts: "fail" (default), "skip", "overwrite"
+- `idField` (string, optional) — Field in each document to use as _id. If omitted, IDs are auto-generated.
+
+**Error codes:**
+- `IMPORT_TOO_LARGE` (413) — Payload too large. Free: 1,000 docs / 5 MB. Pro: 10,000 docs / 50 MB. Try smaller batches.
+- `IMPORT_CONFLICT` (409) — ID conflicts. Use onConflict: "skip" or "overwrite".
+- `IMPORT_FAILED` — General import failure.
+
+### export_collection
+
+Export all documents from a collection as a JSON array. Supports optional filtering.
+
+**Parameters:**
+- `collection` (string, required) — The collection name to export
+- `filter` (object, optional) — Filter to export only matching documents. Same format as list_documents.
+
+**Returns:** `{ collection: "...", count: N, documents: [...] }`
+
+**Error codes:**
+- `EXPORT_LIMIT_EXCEEDED` (403) — Export limit exceeded. Free: 1,000 docs. Pro: 100,000 docs.
+- `EXPORT_FAILED` — General export failure.
+
+---
+
+## Schema Tools
+
+### get_schema
+
+Get the JSON Schema for a collection. Returns the schema if one is set, or null if no schema is configured.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+
+**Returns:** `{ collection: "...", schema: {...} }` or `{ collection: "...", schema: null, message: "..." }`
+
+**Error codes:**
+- `GET_SCHEMA_FAILED` — General failure.
+
+### set_schema
+
+Set a JSON Schema for a collection. Documents created or updated will be validated against it.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `schema` (object, required) — JSON Schema object. Supports: type, required, properties, enum, minimum, maximum, minLength, maxLength, pattern, additionalProperties.
+
+**Error codes:**
+- `INVALID_SCHEMA` (400) — Not a valid JSON Schema.
+- `SET_SCHEMA_FAILED` — General failure.
+
+**Example:**
+
+```
+set_schema({
+  collection: "users",
+  schema: {
+    type: "object",
+    required: ["name", "email"],
+    properties: {
+      name: { type: "string", minLength: 1 },
+      email: { type: "string", pattern: "^.+@.+\\..+$" },
+      age: { type: "number", minimum: 0 }
+    },
+    additionalProperties: true
+  }
+})
+```
+
+### remove_schema
+
+Remove schema validation from a collection. Existing documents are not affected.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+
+**Error codes:**
+- `SCHEMA_NOT_FOUND` (404) — No schema is set for this collection.
+- `REMOVE_SCHEMA_FAILED` — General failure.
+
+### validate_document
+
+Dry-run validate a document against a collection's schema without storing it. Returns { valid: true } or { valid: false, errors: [...] }.
+
+**Parameters:**
+- `collection` (string, required) — The collection name whose schema to validate against
+- `data` (object, required) — The document to validate
+
+**Error codes:**
+- `SCHEMA_NOT_FOUND` (404) — No schema set. Use set_schema first.
+- `VALIDATE_FAILED` — General failure.
+
+---
+
+## Version Tools
+
+### list_versions
+
+List all stored versions of a document. Returns version numbers, timestamps, and size. Version history depth: Free: 5, Pro: 50.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID
+
+**Error codes:**
+- `DOCUMENT_NOT_FOUND` (404) — Document not found.
+- `LIST_VERSIONS_FAILED` — General failure.
+
+### get_version
+
+Retrieve the document as it existed at a specific version number.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID
+- `version` (number, required) — The version number to retrieve (positive integer)
+
+**Error codes:**
+- `VERSION_NOT_FOUND` (404) — Version not found. Use list_versions to see available versions.
+- `GET_VERSION_FAILED` — General failure.
+
+### restore_version
+
+Restore a document to a previous version. The current document is overwritten with the historical snapshot. Creates a new version entry. This action cannot be undone.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID
+- `version` (number, required) — The version number to restore to (positive integer)
+
+**Error codes:**
+- `VERSION_NOT_FOUND` (404) — Version not found.
+- `VALIDATION_ERROR` (400) — Historical version may not match current schema.
+- `RESTORE_VERSION_FAILED` — General failure.
+
+### diff_versions
+
+Compare two versions of a document. Returns a structured diff showing added, removed, and changed fields. Pro plan feature only.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `id` (string, required) — The document ID
+- `from` (number, required) — Base version number (older)
+- `to` (number, required) — Target version number (newer)
+
+**Error codes:**
+- `PRO_FEATURE` (403) — Version diff is a Pro plan feature. Upgrade at https://jsondb.cloud/dashboard/billing.
+- `VERSION_NOT_FOUND` (404) — One or both versions not found.
+- `DIFF_VERSIONS_FAILED` — General failure.
+
+---
+
+## Webhook Tools
+
+Webhooks deliver POST requests signed with HMAC-SHA256 when collection events occur.
+
+**Supported events:** document.created, document.updated, document.deleted
+
+**Plan limits:** Free: 3 total webhooks (1 per collection). Pro: 50 total (10 per collection).
+
+### create_webhook
+
+Register a webhook on a collection.
+
+**Parameters:**
+- `collection` (string, required) — The collection name to watch
+- `url` (string, required) — HTTPS URL to deliver webhook events to
+- `events` (string[], required) — Events to subscribe to: "document.created", "document.updated", "document.deleted"
+- `description` (string, optional) — Human-readable label for this webhook
+
+**Error codes:**
+- `WEBHOOK_LIMIT` (403) — Webhook limit reached. Delete unused webhooks or upgrade.
+- `CREATE_WEBHOOK_FAILED` — General failure.
+
+**Example:**
+
+```
+create_webhook({
+  collection: "orders",
+  url: "https://example.com/hooks/orders",
+  events: ["document.created", "document.updated"],
+  description: "Notify on new or changed orders"
+})
+```
+
+### list_webhooks
+
+List all webhooks registered on a collection.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+
+**Error codes:**
+- `LIST_WEBHOOKS_FAILED` — General failure.
+
+### get_webhook
+
+Get details for a specific webhook including recent delivery history and failure counts.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `webhookId` (string, required) — The webhook ID
+
+**Error codes:**
+- `WEBHOOK_NOT_FOUND` (404) — Webhook not found.
+- `GET_WEBHOOK_FAILED` — General failure.
+
+### update_webhook
+
+Update a webhook's URL, events, description, or enabled status. Only provided fields are changed.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `webhookId` (string, required) — The webhook ID to update
+- `url` (string, optional) — New delivery URL
+- `events` (string[], optional) — New event subscriptions (replaces existing list)
+- `description` (string, optional) — New description
+- `status` (string, optional) — "active" or "disabled"
+
+**Error codes:**
+- `WEBHOOK_NOT_FOUND` (404) — Webhook not found.
+- `UPDATE_WEBHOOK_FAILED` — General failure.
+
+### delete_webhook
+
+Delete a webhook permanently. Pending event delivery is stopped immediately. This action cannot be undone.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `webhookId` (string, required) — The webhook ID to delete
+
+**Returns:** `{ deleted: true, webhookId: "...", collection: "..." }`
+
+**Error codes:**
+- `WEBHOOK_NOT_FOUND` (404) — Webhook not found.
+- `DELETE_WEBHOOK_FAILED` — General failure.
+
+### test_webhook
+
+Send a test event to verify the endpoint is reachable and signature verification is working.
+
+**Parameters:**
+- `collection` (string, required) — The collection name
+- `webhookId` (string, required) — The webhook ID to test
+
+**Error codes:**
+- `WEBHOOK_NOT_FOUND` (404) — Webhook not found.
+- `TEST_WEBHOOK_FAILED` — Verify the webhook URL is reachable and responding with 2xx.
+
+---
+
+## Resources
+
+### jsondb://collections
+
+Static resource listing all collections in the current project. Returns JSON array of collection metadata.
+
+### jsondb://collections/{collection}/schema
+
+Resource template returning the JSON Schema for a specific collection. Returns the schema object or a message indicating no schema is set.
+
+---
+
+## Common Workflows
+
+### CRUD Basics
+
+```
+# Create
+create_document({ collection: "users", data: { name: "Alice", email: "alice@example.com" } })
+
+# Read
+get_document({ collection: "users", id: "abc123" })
+
+# Update (full replace)
+update_document({ collection: "users", id: "abc123", data: { name: "Alice Smith", email: "alice@example.com" } })
+
+# Partial update
+patch_document({ collection: "users", id: "abc123", data: { name: "Alice Smith" } })
+
+# Delete
+delete_document({ collection: "users", id: "abc123" })
+```
+
+### Search and Filter
+
+```
+# Find active admins, sorted by newest first
+search_documents({
+  collection: "users",
+  filters: [
+    { field: "role", operator: "eq", value: "admin" },
+    { field: "status", operator: "eq", value: "active" }
+  ],
+  sort: "-$createdAt"
+})
+
+# Count matching documents
+count_documents({ collection: "users", filter: { role: "admin" } })
+```
+
+### Schema Enforcement
+
+```
+# Set schema
+set_schema({ collection: "users", schema: { type: "object", required: ["name"], properties: { name: { type: "string" } } } })
+
+# Validate before creating
+validate_document({ collection: "users", data: { name: "Bob" } })
+
+# Create (will be validated)
+create_document({ collection: "users", data: { name: "Bob" } })
+```
+
+### Version History
+
+```
+# See all versions
+list_versions({ collection: "orders", id: "order-42" })
+
+# View a specific version
+get_version({ collection: "orders", id: "order-42", version: 3 })
+
+# Restore to an older version
+restore_version({ collection: "orders", id: "order-42", version: 2 })
+```
+
+### Bulk Operations
+
+```
+# Import documents
+import_documents({
+  collection: "products",
+  documents: [
+    { name: "Widget", price: 9.99 },
+    { name: "Gadget", price: 19.99 }
+  ],
+  onConflict: "skip"
+})
+
+# Export all documents
+export_collection({ collection: "products" })
+```
+
+---
+
+## Plan Limits Reference
+
+| Feature               | Free        | Pro          |
+|-----------------------|-------------|--------------|
+| Document size         | 16 KB       | 1 MB         |
+| Import batch          | 1,000 / 5MB | 10,000 / 50MB |
+| Export limit          | 1,000 docs  | 100,000 docs |
+| Version history depth | 5 versions  | 50 versions  |
+| Version diff          | —           | Available    |
+| Webhooks (total)      | 3           | 50           |
+| Webhooks per collection | 1         | 10           |
+
+---
+
+## Links
+
+- Documentation: https://jsondb.cloud/docs
+- npm: https://www.npmjs.com/package/@jsondb-cloud/mcp
+- GitHub: https://github.com/JsonDBCloud/mcp
+- JavaScript SDK: https://github.com/JsonDBCloud/node
+- Python SDK: https://github.com/JsonDBCloud/python
+- CLI: https://github.com/JsonDBCloud/cli

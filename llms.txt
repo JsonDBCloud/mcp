@@ -1,0 +1,89 @@
+# @jsondb-cloud/mcp
+
+> MCP (Model Context Protocol) server for jsondb.cloud — a hosted JSON document database. Lets AI agents create, query, and manage documents through natural language.
+
+## Install
+
+```bash
+npx -y @jsondb-cloud/mcp
+```
+
+Or install permanently:
+
+```bash
+npm install @jsondb-cloud/mcp
+```
+
+## Configuration
+
+Set the `JSONDB_API_KEY` environment variable (required). Get a key from https://jsondb.cloud.
+
+Optional variables:
+- `JSONDB_PROJECT` — project namespace (default: "v1")
+- `JSONDB_BASE_URL` — API base URL (default: "https://api.jsondb.cloud")
+
+### MCP Client Setup
+
+```json
+{
+  "mcpServers": {
+    "jsondb": {
+      "command": "npx",
+      "args": ["-y", "@jsondb-cloud/mcp"],
+      "env": {
+        "JSONDB_API_KEY": "jdb_sk_live_..."
+      }
+    }
+  }
+}
+```
+
+## Tools
+
+### Documents
+- `create_document` — Create a new document in a collection
+- `get_document` — Read a single document by ID
+- `list_documents` — List documents with filtering, sorting, and pagination
+- `update_document` — Replace a document entirely
+- `patch_document` — Partially update a document (merge patch)
+- `delete_document` — Delete a document by ID
+- `count_documents` — Count documents matching an optional filter
+- `json_patch_document` — Apply RFC 6902 JSON Patch operations
+
+### Collections
+- `list_collections` — List all collections in the current project
+- `search_documents` — Search with advanced filters (eq, gt, contains, in, etc.)
+- `import_documents` — Bulk import with conflict resolution (fail, skip, overwrite)
+- `export_collection` — Export all documents as JSON
+
+### Schemas
+- `get_schema` — Get the JSON Schema for a collection
+- `set_schema` — Set a JSON Schema to enforce document structure
+- `remove_schema` — Remove schema validation from a collection
+- `validate_document` — Dry-run validate a document against the schema
+
+### Versions
+- `list_versions` — List all stored versions of a document
+- `get_version` — Retrieve a specific version snapshot
+- `restore_version` — Restore a document to a previous version
+- `diff_versions` — Compare two versions with a structured diff (Pro)
+
+### Webhooks
+- `create_webhook` — Register a webhook for collection events
+- `list_webhooks` — List all webhooks for a collection
+- `get_webhook` — Get webhook details and recent delivery history
+- `update_webhook` — Update webhook URL, events, or status
+- `delete_webhook` — Delete a webhook
+- `test_webhook` — Send a test event to verify delivery
+
+## Resources
+- `jsondb://collections` — List of all collections in the project
+- `jsondb://collections/{collection}/schema` — JSON Schema for a specific collection
+
+## Full Documentation
+
+For complete API reference with all parameters, error types, and examples, see llms-full.txt.
+
+Project docs: https://jsondb.cloud/docs
+npm: https://www.npmjs.com/package/@jsondb-cloud/mcp
+GitHub: https://github.com/JsonDBCloud/mcp
