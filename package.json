@@ -22,7 +22,8 @@
     "build": "tsup src/index.ts --format cjs,esm --clean",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "lint": "eslint src/",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@jsondb-cloud/client": "*",
