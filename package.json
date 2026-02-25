@@ -23,7 +23,8 @@
     "dev": "tsup src/index.ts --format cjs,esm --watch",
     "lint": "eslint src/",
     "format:check": "prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepare": "husky"
   },
   "dependencies": {
     "@jsondb-cloud/client": "*",
@@ -36,6 +37,8 @@
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
@@ -58,5 +61,11 @@
   },
   "engines": {
     "node": ">=20.19.0"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
