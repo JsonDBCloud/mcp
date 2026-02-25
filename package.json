@@ -1,0 +1,53 @@
+{
+  "name": "@jsondb-cloud/mcp",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) server for jsondb.cloud — lets AI agents interact with your JSON database",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "jsondb-mcp": "bin/jsondb-mcp.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@jsondb-cloud/client": "*",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "jsondb",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agent",
+    "json",
+    "database",
+    "claude",
+    "cursor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsondb-cloud/mcp.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
