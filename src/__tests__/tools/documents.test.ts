@@ -23,6 +23,7 @@ describe("registerDocumentTools", () => {
 describe("document tool handlers", () => {
   function getHandler(server: any, toolName: string) {
     const call = server.tool.mock.calls.find((c: any[]) => c[0] === toolName);
+    if (!call) throw new Error(`Tool "${toolName}" was not registered`);
     return call[call.length - 1];
   }
 
