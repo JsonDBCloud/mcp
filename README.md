@@ -5,7 +5,11 @@ The official MCP (Model Context Protocol) server for [jsondb.cloud](https://json
 [![npm version](https://img.shields.io/npm/v/@jsondb-cloud/mcp)](https://www.npmjs.com/package/@jsondb-cloud/mcp)
 [![npm downloads](https://img.shields.io/npm/dm/@jsondb-cloud/mcp)](https://www.npmjs.com/package/@jsondb-cloud/mcp)
 [![CI](https://github.com/JsonDBCloud/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/JsonDBCloud/mcp/actions)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
+[![Bundle size](https://img.shields.io/bundlephobia/min/@jsondb-cloud/mcp)](https://bundlephobia.com/package/@jsondb-cloud/mcp)
+[![GitHub stars](https://img.shields.io/github/stars/JsonDBCloud/mcp)](https://github.com/JsonDBCloud/mcp)
+[![Last commit](https://img.shields.io/github/last-commit/JsonDBCloud/mcp)](https://github.com/JsonDBCloud/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Install
