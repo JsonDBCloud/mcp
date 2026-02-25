@@ -33,5 +33,13 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Node ${{ matrix.node-version }})
+          path: test-results.xml
+          reporter: java-junit
+
       - name: Build
         run: npm run build
