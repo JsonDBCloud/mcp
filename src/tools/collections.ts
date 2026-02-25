@@ -37,7 +37,7 @@ function error(
  *   { field: value }              for equality
  *   { field: { $gt: value } }    for operators
  */
-function buildFilterObject(
+export function buildFilterObject(
   filters: { field: string; operator: string; value: unknown }[],
 ): Record<string, unknown> {
   const filterObj: Record<string, unknown> = {};
