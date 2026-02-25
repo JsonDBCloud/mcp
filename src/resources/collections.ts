@@ -7,10 +7,7 @@ import type { JsonDB } from "@jsondb-cloud/client";
  * Resources provide read-only context that AI agents can access to understand
  * the structure of the database without needing to call tools.
  */
-export function registerCollectionResources(
-  server: McpServer,
-  db: JsonDB,
-): void {
+export function registerCollectionResources(server: McpServer, db: JsonDB): void {
   // ── jsondb://collections ─────────────────────────────────────────
   // Static resource: list of all collections in the project
   server.resource(
@@ -26,9 +23,10 @@ export function registerCollectionResources(
       try {
         const apiKey = process.env.JSONDB_API_KEY || "";
         const project = process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
-        const baseUrl = (
-          process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud"
-        ).replace(/\/$/, "");
+        const baseUrl = (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
+          /\/$/,
+          "",
+        );
 
         const res = await fetch(`${baseUrl}/${project}`, {
           headers: {
@@ -70,11 +68,7 @@ export function registerCollectionResources(
             {
               uri: "jsondb://collections",
               mimeType: "application/json" as const,
-              text: JSON.stringify(
-                { error: e.message || "Failed to fetch collections" },
-                null,
-                2,
-              ),
+              text: JSON.stringify({ error: e.message || "Failed to fetch collections" }, null, 2),
             },
           ],
         };
@@ -127,9 +121,7 @@ export function registerCollectionResources(
               mimeType: "application/json" as const,
               text: JSON.stringify(
                 {
-                  error:
-                    e.message ||
-                    `Failed to fetch schema for collection '${collection}'`,
+                  error: e.message || `Failed to fetch schema for collection '${collection}'`,
                 },
                 null,
                 2,

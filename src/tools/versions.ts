@@ -28,18 +28,11 @@ function resolveEnv(): { apiKey: string; project: string; baseUrl: string } {
   return {
     apiKey: process.env.JSONDB_API_KEY || "",
     project: process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1",
-    baseUrl: (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
-      /\/$/,
-      "",
-    ),
+    baseUrl: (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(/\/$/, ""),
   };
 }
 
-async function versionFetch(
-  url: string,
-  apiKey: string,
-  opts: RequestInit = {},
-): Promise<unknown> {
+async function versionFetch(url: string, apiKey: string, opts: RequestInit = {}): Promise<unknown> {
   const res = await fetch(url, {
     ...opts,
     headers: {
@@ -190,16 +183,8 @@ export function registerVersionTools(server: McpServer, _db: JsonDB): void {
     {
       collection: z.string().describe("The collection name"),
       id: z.string().describe("The document ID"),
-      from: z
-        .number()
-        .int()
-        .positive()
-        .describe("The base version number (older version)"),
-      to: z
-        .number()
-        .int()
-        .positive()
-        .describe("The target version number (newer version)"),
+      from: z.number().int().positive().describe("The base version number (older version)"),
+      to: z.number().int().positive().describe("The target version number (newer version)"),
     },
     async ({ collection, id, from, to }) => {
       try {

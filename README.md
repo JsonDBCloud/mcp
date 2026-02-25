@@ -77,64 +77,64 @@ Add to `.cursor/mcp.json`:
 
 ### Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `JSONDB_API_KEY` | Yes | — | API key (`jdb_sk_live_...` or `jdb_sk_test_...`) |
-| `JSONDB_PROJECT` | No | `v1` | Project namespace |
-| `JSONDB_BASE_URL` | No | `https://api.jsondb.cloud` | API base URL |
+| Variable          | Required | Default                    | Description                                      |
+| ----------------- | -------- | -------------------------- | ------------------------------------------------ |
+| `JSONDB_API_KEY`  | Yes      | —                          | API key (`jdb_sk_live_...` or `jdb_sk_test_...`) |
+| `JSONDB_PROJECT`  | No       | `v1`                       | Project namespace                                |
+| `JSONDB_BASE_URL` | No       | `https://api.jsondb.cloud` | API base URL                                     |
 
 ## Tools
 
 ### Documents
 
-| Tool | Description |
-|------|-------------|
-| `create_document` | Create a new document in a collection |
-| `get_document` | Read a single document by ID |
-| `list_documents` | List documents with filtering, sorting, and pagination |
-| `update_document` | Replace a document entirely |
-| `patch_document` | Partially update a document (merge patch) |
-| `delete_document` | Delete a document by ID |
-| `count_documents` | Count documents matching an optional filter |
-| `json_patch_document` | Apply RFC 6902 JSON Patch operations |
+| Tool                  | Description                                            |
+| --------------------- | ------------------------------------------------------ |
+| `create_document`     | Create a new document in a collection                  |
+| `get_document`        | Read a single document by ID                           |
+| `list_documents`      | List documents with filtering, sorting, and pagination |
+| `update_document`     | Replace a document entirely                            |
+| `patch_document`      | Partially update a document (merge patch)              |
+| `delete_document`     | Delete a document by ID                                |
+| `count_documents`     | Count documents matching an optional filter            |
+| `json_patch_document` | Apply RFC 6902 JSON Patch operations                   |
 
 ### Collections
 
-| Tool | Description |
-|------|-------------|
-| `list_collections` | List all collections in the current project |
-| `search_documents` | Search with advanced filters (`eq`, `gt`, `contains`, `in`, etc.) |
-| `import_documents` | Bulk import with conflict resolution (`fail`, `skip`, `overwrite`) |
-| `export_collection` | Export all documents as JSON |
+| Tool                | Description                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| `list_collections`  | List all collections in the current project                        |
+| `search_documents`  | Search with advanced filters (`eq`, `gt`, `contains`, `in`, etc.)  |
+| `import_documents`  | Bulk import with conflict resolution (`fail`, `skip`, `overwrite`) |
+| `export_collection` | Export all documents as JSON                                       |
 
 ### Schemas
 
-| Tool | Description |
-|------|-------------|
-| `get_schema` | Get the JSON Schema for a collection |
-| `set_schema` | Set a JSON Schema to enforce document structure |
-| `remove_schema` | Remove schema validation from a collection |
-| `validate_document` | Dry-run validate a document against the schema |
+| Tool                | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `get_schema`        | Get the JSON Schema for a collection            |
+| `set_schema`        | Set a JSON Schema to enforce document structure |
+| `remove_schema`     | Remove schema validation from a collection      |
+| `validate_document` | Dry-run validate a document against the schema  |
 
 ### Versions
 
-| Tool | Description |
-|------|-------------|
-| `list_versions` | List all stored versions of a document |
-| `get_version` | Retrieve a specific version snapshot |
-| `restore_version` | Restore a document to a previous version |
-| `diff_versions` | Compare two versions with a structured diff |
+| Tool              | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `list_versions`   | List all stored versions of a document      |
+| `get_version`     | Retrieve a specific version snapshot        |
+| `restore_version` | Restore a document to a previous version    |
+| `diff_versions`   | Compare two versions with a structured diff |
 
 ### Webhooks
 
-| Tool | Description |
-|------|-------------|
-| `create_webhook` | Register a webhook for collection events |
-| `list_webhooks` | List all webhooks for a collection |
-| `get_webhook` | Get webhook details and recent delivery history |
-| `update_webhook` | Update webhook URL, events, or status |
-| `delete_webhook` | Delete a webhook |
-| `test_webhook` | Send a test event to verify delivery |
+| Tool             | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| `create_webhook` | Register a webhook for collection events        |
+| `list_webhooks`  | List all webhooks for a collection              |
+| `get_webhook`    | Get webhook details and recent delivery history |
+| `update_webhook` | Update webhook URL, events, or status           |
+| `delete_webhook` | Delete a webhook                                |
+| `test_webhook`   | Send a test event to verify delivery            |
 
 ## Documentation
 
@@ -142,12 +142,12 @@ Full documentation at [jsondb.cloud/docs](https://jsondb.cloud/docs).
 
 ## Related Packages
 
-| Package | Description |
-|---------|-------------|
-| [@jsondb-cloud/client](https://github.com/JsonDBCloud/node) | JavaScript/TypeScript SDK |
-| [@jsondb-cloud/mcp](https://github.com/JsonDBCloud/mcp) | MCP server for AI agents |
-| [@jsondb-cloud/cli](https://github.com/JsonDBCloud/cli) | CLI tool |
-| [jsondb-cloud](https://github.com/JsonDBCloud/python) (PyPI) | Python SDK |
+| Package                                                      | Description               |
+| ------------------------------------------------------------ | ------------------------- |
+| [@jsondb-cloud/client](https://github.com/JsonDBCloud/node)  | JavaScript/TypeScript SDK |
+| [@jsondb-cloud/mcp](https://github.com/JsonDBCloud/mcp)      | MCP server for AI agents  |
+| [@jsondb-cloud/cli](https://github.com/JsonDBCloud/cli)      | CLI tool                  |
+| [jsondb-cloud](https://github.com/JsonDBCloud/python) (PyPI) | Python SDK                |
 
 ## License
 

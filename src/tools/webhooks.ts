@@ -28,10 +28,7 @@ function resolveEnv(): { apiKey: string; project: string; baseUrl: string } {
   return {
     apiKey: process.env.JSONDB_API_KEY || "",
     project: process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1",
-    baseUrl: (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
-      /\/$/,
-      "",
-    ),
+    baseUrl: (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(/\/$/, ""),
   };
 }
 
@@ -63,11 +60,7 @@ async function webhookFetch(
   return res.json();
 }
 
-const webhookEventEnum = z.enum([
-  "document.created",
-  "document.updated",
-  "document.deleted",
-]);
+const webhookEventEnum = z.enum(["document.created", "document.updated", "document.deleted"]);
 
 /**
  * Register webhook management tools on the MCP server.
@@ -79,19 +72,13 @@ export function registerWebhookTools(server: McpServer, _db: JsonDB): void {
     "Register a webhook on a jsondb.cloud collection. The webhook URL receives POST requests signed with HMAC-SHA256 when the specified events occur.",
     {
       collection: z.string().describe("The collection name to watch"),
-      url: z
-        .string()
-        .url()
-        .describe("The HTTPS URL to deliver webhook events to"),
+      url: z.string().url().describe("The HTTPS URL to deliver webhook events to"),
       events: z
         .array(webhookEventEnum)
         .describe(
           "Events to subscribe to: 'document.created', 'document.updated', 'document.deleted'",
         ),
-      description: z
-        .string()
-        .optional()
-        .describe("Optional human-readable label for this webhook"),
+      description: z.string().optional().describe("Optional human-readable label for this webhook"),
     },
     async ({ collection, url: webhookUrl, events, description }) => {
       try {
@@ -131,10 +118,7 @@ export function registerWebhookTools(server: McpServer, _db: JsonDB): void {
     async ({ collection }) => {
       try {
         const { apiKey, project, baseUrl } = resolveEnv();
-        const data = await webhookFetch(
-          `${baseUrl}/${project}/${collection}/_webhooks`,
-          apiKey,
-        );
+        const data = await webhookFetch(`${baseUrl}/${project}/${collection}/_webhooks`, apiKey);
         return success(data);
       } catch (err: unknown) {
         const e = err as { message?: string; status?: number };
@@ -153,9 +137,7 @@ export function registerWebhookTools(server: McpServer, _db: JsonDB): void {
     "Get details for a specific webhook including its recent delivery history and failure counts.",
     {
       collection: z.string().describe("The collection name"),
-      webhookId: z
-        .string()
-        .describe("The webhook ID (from list_webhooks or create_webhook)"),
+      webhookId: z.string().describe("The webhook ID (from list_webhooks or create_webhook)"),
     },
     async ({ collection, webhookId }) => {
       try {
@@ -201,7 +183,14 @@ export function registerWebhookTools(server: McpServer, _db: JsonDB): void {
         .optional()
         .describe("Set to 'disabled' to pause delivery, 'active' to resume"),
     },
-    async ({ collection, webhookId, url: webhookUrl, events, description, status: webhookStatus }) => {
+    async ({
+      collection,
+      webhookId,
+      url: webhookUrl,
+      events,
+      description,
+      status: webhookStatus,
+    }) => {
       try {
         const { apiKey, project, baseUrl } = resolveEnv();
         const body: Record<string, unknown> = {};

@@ -39,18 +39,14 @@ export function registerDocumentTools(server: McpServer, db: JsonDB): void {
     "create_document",
     "Create a new JSON document in a jsondb.cloud collection. Returns the created document with auto-generated _id, $createdAt, $updatedAt, and $version metadata.",
     {
-      collection: z
-        .string()
-        .describe("The collection name (e.g., 'users', 'posts', 'settings')"),
+      collection: z.string().describe("The collection name (e.g., 'users', 'posts', 'settings')"),
       data: z
         .record(z.string(), z.any())
         .describe("The JSON document to store. Can contain any valid JSON."),
       id: z
         .string()
         .optional()
-        .describe(
-          "Optional custom document ID. If not provided, an ID is auto-generated.",
-        ),
+        .describe("Optional custom document ID. If not provided, an ID is auto-generated."),
     },
     async ({ collection, data, id }) => {
       try {
@@ -135,17 +131,9 @@ export function registerDocumentTools(server: McpServer, db: JsonDB): void {
       sort: z
         .string()
         .optional()
-        .describe(
-          "Field to sort by. Prefix with '-' for descending (e.g., '-$createdAt')",
-        ),
-      limit: z
-        .number()
-        .optional()
-        .describe("Max documents to return (default: 20, max: 100)"),
-      offset: z
-        .number()
-        .optional()
-        .describe("Number of documents to skip for pagination"),
+        .describe("Field to sort by. Prefix with '-' for descending (e.g., '-$createdAt')"),
+      limit: z.number().optional().describe("Max documents to return (default: 20, max: 100)"),
+      offset: z.number().optional().describe("Number of documents to skip for pagination"),
       select: z
         .array(z.string())
         .optional()
@@ -184,9 +172,7 @@ export function registerDocumentTools(server: McpServer, db: JsonDB): void {
       id: z.string().describe("The document ID to replace"),
       data: z
         .record(z.string(), z.any())
-        .describe(
-          "The complete new document data. This replaces all existing fields.",
-        ),
+        .describe("The complete new document data. This replaces all existing fields."),
     },
     async ({ collection, id, data }) => {
       try {
@@ -338,17 +324,9 @@ export function registerDocumentTools(server: McpServer, db: JsonDB): void {
             op: z
               .enum(["add", "remove", "replace", "move", "copy", "test"])
               .describe("Patch operation type"),
-            path: z
-              .string()
-              .describe("JSON Pointer path (e.g., '/name', '/tags/0')"),
-            value: z
-              .any()
-              .optional()
-              .describe("Value for add/replace/test operations"),
-            from: z
-              .string()
-              .optional()
-              .describe("Source path for move/copy operations"),
+            path: z.string().describe("JSON Pointer path (e.g., '/name', '/tags/0')"),
+            value: z.any().optional().describe("Value for add/replace/test operations"),
+            from: z.string().optional().describe("Source path for move/copy operations"),
           }),
         )
         .describe("Array of JSON Patch operations to apply in order"),

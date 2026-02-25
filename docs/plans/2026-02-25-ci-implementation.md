@@ -13,6 +13,7 @@
 ### Task 1: Install dev dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Install ESLint + Prettier + Vitest**
@@ -38,6 +39,7 @@ git commit -m "chore: add eslint, prettier, and vitest dev dependencies"
 ### Task 2: Configure ESLint (flat config)
 
 **Files:**
+
 - Create: `eslint.config.js`
 
 **Step 1: Create eslint.config.js**
@@ -61,10 +63,7 @@ export default [
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
@@ -79,6 +78,7 @@ Note: `no-explicit-any` is off because the codebase uses `z.any()` extensively a
 **Step 2: Add lint script to package.json**
 
 Add to `"scripts"`:
+
 ```json
 "lint": "eslint src/"
 ```
@@ -100,6 +100,7 @@ git commit -m "chore: add eslint flat config with typescript rules"
 ### Task 3: Configure Prettier
 
 **Files:**
+
 - Create: `.prettierrc`
 - Create: `.prettierignore`
 
@@ -128,6 +129,7 @@ package-lock.json
 **Step 3: Add format:check script to package.json**
 
 Add to `"scripts"`:
+
 ```json
 "format:check": "prettier --check ."
 ```
@@ -152,6 +154,7 @@ git commit -m "chore: add prettier config matching existing code style"
 ### Task 4: Export `buildFilterObject` for testing
 
 **Files:**
+
 - Modify: `src/tools/collections.ts`
 
 The `buildFilterObject` function is currently private. We need to export it so tests can import it directly.
@@ -159,10 +162,13 @@ The `buildFilterObject` function is currently private. We need to export it so t
 **Step 1: Change `function buildFilterObject` to `export function buildFilterObject`**
 
 In `src/tools/collections.ts`, line 40, change:
+
 ```ts
 function buildFilterObject(
 ```
+
 to:
+
 ```ts
 export function buildFilterObject(
 ```
@@ -184,6 +190,7 @@ git commit -m "refactor: export buildFilterObject for testability"
 ### Task 5: Configure Vitest
 
 **Files:**
+
 - Create: `vitest.config.ts`
 
 **Step 1: Create vitest.config.ts**
@@ -201,6 +208,7 @@ export default defineConfig({
 **Step 2: Add test script to package.json**
 
 Add to `"scripts"`:
+
 ```json
 "test": "vitest run"
 ```
@@ -217,6 +225,7 @@ git commit -m "chore: add vitest config and test script"
 ### Task 6: Write buildFilterObject tests
 
 **Files:**
+
 - Create: `src/__tests__/build-filter.test.ts`
 
 **Step 1: Write the tests**
@@ -227,25 +236,19 @@ import { buildFilterObject } from "../tools/collections.js";
 
 describe("buildFilterObject", () => {
   it("maps eq operator to direct value", () => {
-    const result = buildFilterObject([
-      { field: "status", operator: "eq", value: "active" },
-    ]);
+    const result = buildFilterObject([{ field: "status", operator: "eq", value: "active" }]);
     expect(result).toEqual({ status: "active" });
   });
 
   it("maps gt operator to $gt", () => {
-    const result = buildFilterObject([
-      { field: "age", operator: "gt", value: 18 },
-    ]);
+    const result = buildFilterObject([{ field: "age", operator: "gt", value: 18 }]);
     expect(result).toEqual({ age: { $gt: 18 } });
   });
 
   it("maps all comparison operators", () => {
     const operators = ["neq", "gte", "lt", "lte", "contains", "in", "exists"] as const;
     for (const op of operators) {
-      const result = buildFilterObject([
-        { field: "f", operator: op, value: "v" },
-      ]);
+      const result = buildFilterObject([{ field: "f", operator: op, value: "v" }]);
       expect(result.f).toEqual({ [`$${op}`]: "v" });
     }
   });
@@ -262,9 +265,7 @@ describe("buildFilterObject", () => {
   });
 
   it("falls back to direct value for unknown operators", () => {
-    const result = buildFilterObject([
-      { field: "x", operator: "unknown_op", value: 42 },
-    ]);
+    const result = buildFilterObject([{ field: "x", operator: "unknown_op", value: 42 }]);
     expect(result).toEqual({ x: 42 });
   });
 
@@ -292,6 +293,7 @@ git commit -m "test: add buildFilterObject unit tests"
 ### Task 7: Write helpers tests (success/error format)
 
 **Files:**
+
 - Create: `src/__tests__/helpers.test.ts`
 
 The `success()` and `error()` functions are private in each tool file. Rather than exporting them all, we test the format indirectly by calling a tool handler and checking the response shape. But first, let's create a shared test utility that mirrors the helpers for assertion:
@@ -355,6 +357,7 @@ git commit -m "test: add MCP response format contract tests"
 ### Task 8: Write tool registration smoke tests
 
 **Files:**
+
 - Create: `src/__tests__/tools/documents.test.ts`
 - Create: `src/__tests__/tools/collections.test.ts`
 - Create: `src/__tests__/tools/schemas.test.ts`
@@ -535,6 +538,7 @@ git commit -m "test: add tool registration smoke tests for all modules"
 ### Task 9: Write tool handler behavior tests
 
 **Files:**
+
 - Modify: `src/__tests__/tools/documents.test.ts`
 
 Add handler-level tests for `create_document` and `get_document` to verify success and error response paths.
@@ -630,6 +634,7 @@ describe("document tool handlers", () => {
 ```
 
 Note: add `vi` to the import at the top of the file:
+
 ```ts
 import { describe, it, expect, vi } from "vitest";
 ```
@@ -651,6 +656,7 @@ git commit -m "test: add document tool handler behavior tests"
 ### Task 10: Create ci.yml workflow
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 **Step 1: Write ci.yml**
@@ -707,6 +713,7 @@ git commit -m "ci: add CI workflow with lint, typecheck, test, build"
 ### Task 11: Modify publish.yml to depend on CI
 
 **Files:**
+
 - Modify: `.github/workflows/publish.yml`
 
 **Step 1: Update the trigger**
@@ -714,6 +721,7 @@ git commit -m "ci: add CI workflow with lint, typecheck, test, build"
 Replace the existing `on:` block and add the `if:` condition:
 
 Change from:
+
 ```yaml
 on:
   push:
@@ -725,6 +733,7 @@ jobs:
 ```
 
 To:
+
 ```yaml
 on:
   workflow_run:

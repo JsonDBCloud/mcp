@@ -39,9 +39,7 @@ export function registerSchemaTools(server: McpServer, db: JsonDB): void {
     "get_schema",
     "Get the JSON Schema for a jsondb.cloud collection. Returns the schema if one is set, or null if no schema is configured. Knowing the schema helps you create valid documents.",
     {
-      collection: z
-        .string()
-        .describe("The collection name to get the schema for"),
+      collection: z.string().describe("The collection name to get the schema for"),
     },
     async ({ collection }) => {
       try {
@@ -71,9 +69,7 @@ export function registerSchemaTools(server: McpServer, db: JsonDB): void {
     "set_schema",
     "Set a JSON Schema for a jsondb.cloud collection. Documents created or updated in this collection will be validated against the schema. Supports standard JSON Schema keywords: type, required, properties, enum, minimum, maximum, minLength, maxLength, pattern, and additionalProperties.",
     {
-      collection: z
-        .string()
-        .describe("The collection name to set the schema for"),
+      collection: z.string().describe("The collection name to set the schema for"),
       schema: z
         .record(z.string(), z.any())
         .describe(
@@ -112,9 +108,7 @@ export function registerSchemaTools(server: McpServer, db: JsonDB): void {
     "remove_schema",
     "Remove the JSON Schema from a jsondb.cloud collection. After removal, any valid JSON document can be stored without validation. Existing documents are not affected.",
     {
-      collection: z
-        .string()
-        .describe("The collection name to remove the schema from"),
+      collection: z.string().describe("The collection name to remove the schema from"),
     },
     async ({ collection }) => {
       try {
@@ -148,12 +142,8 @@ export function registerSchemaTools(server: McpServer, db: JsonDB): void {
     "validate_document",
     "Dry-run validate a document against a collection's schema without storing it. Returns { valid: true } or { valid: false, errors: [...] } with field-level error details. Use this before create_document when unsure if a document conforms to the schema.",
     {
-      collection: z
-        .string()
-        .describe("The collection name whose schema to validate against"),
-      data: z
-        .record(z.string(), z.any())
-        .describe("The document to validate"),
+      collection: z.string().describe("The collection name whose schema to validate against"),
+      data: z.record(z.string(), z.any()).describe("The document to validate"),
     },
     async ({ collection, data }) => {
       try {

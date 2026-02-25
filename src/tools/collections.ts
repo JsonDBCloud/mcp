@@ -91,9 +91,10 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
         // we need to make a direct fetch call.
         const apiKey = process.env.JSONDB_API_KEY || "";
         const project = process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
-        const baseUrl = (
-          process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud"
-        ).replace(/\/$/, "");
+        const baseUrl = (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
+          /\/$/,
+          "",
+        );
 
         const res = await fetch(`${baseUrl}/${project}`, {
           headers: {
@@ -104,7 +105,10 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
 
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw { status: res.status, message: (body as { error?: string }).error || res.statusText };
+          throw {
+            status: res.status,
+            message: (body as { error?: string }).error || res.statusText,
+          };
         }
 
         const data = await res.json();
@@ -129,23 +133,9 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
       filters: z
         .array(
           z.object({
-            field: z
-              .string()
-              .describe(
-                "Field path (supports dot notation for nested fields)",
-              ),
+            field: z.string().describe("Field path (supports dot notation for nested fields)"),
             operator: z
-              .enum([
-                "eq",
-                "neq",
-                "gt",
-                "gte",
-                "lt",
-                "lte",
-                "contains",
-                "in",
-                "exists",
-              ])
+              .enum(["eq", "neq", "gt", "gte", "lt", "lte", "contains", "in", "exists"])
               .describe("Comparison operator"),
             value: z.any().describe("Value to compare against"),
           }),
@@ -154,17 +144,9 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
       sort: z
         .string()
         .optional()
-        .describe(
-          "Field to sort by. Prefix with '-' for descending (e.g., '-$createdAt')",
-        ),
-      limit: z
-        .number()
-        .optional()
-        .describe("Max documents to return (default: 20, max: 100)"),
-      offset: z
-        .number()
-        .optional()
-        .describe("Number of documents to skip for pagination"),
+        .describe("Field to sort by. Prefix with '-' for descending (e.g., '-$createdAt')"),
+      limit: z.number().optional().describe("Max documents to return (default: 20, max: 100)"),
+      offset: z.number().optional().describe("Number of documents to skip for pagination"),
     },
     async ({ collection, filters, sort, limit, offset }) => {
       try {
@@ -206,18 +188,16 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
       idField: z
         .string()
         .optional()
-        .describe(
-          "Field in each document to use as _id. If omitted, IDs are auto-generated.",
-        ),
+        .describe("Field in each document to use as _id. If omitted, IDs are auto-generated."),
     },
     async ({ collection, documents, onConflict, idField }) => {
       try {
         const apiKey = process.env.JSONDB_API_KEY || "";
-        const project =
-          process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
-        const baseUrl = (
-          process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud"
-        ).replace(/\/$/, "");
+        const project = process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
+        const baseUrl = (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
+          /\/$/,
+          "",
+        );
 
         const params = new URLSearchParams();
         if (onConflict) params.set("onConflict", onConflict);
@@ -240,8 +220,7 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
           const body = await res.json().catch(() => ({}));
           throw {
             status: res.status,
-            message:
-              (body as { error?: string }).error || res.statusText,
+            message: (body as { error?: string }).error || res.statusText,
           };
         }
 
@@ -265,8 +244,7 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
         }
         return error(
           "IMPORT_FAILED",
-          e.message ||
-            `Failed to import documents into collection '${collection}'.`,
+          e.message || `Failed to import documents into collection '${collection}'.`,
           `Verify each document is a valid JSON object. Check the import limits for your plan.`,
         );
       }
@@ -289,11 +267,11 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
     async ({ collection, filter }) => {
       try {
         const apiKey = process.env.JSONDB_API_KEY || "";
-        const project =
-          process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
-        const baseUrl = (
-          process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud"
-        ).replace(/\/$/, "");
+        const project = process.env.JSONDB_PROJECT || process.env.JSONDB_NAMESPACE || "v1";
+        const baseUrl = (process.env.JSONDB_BASE_URL || "https://api.jsondb.cloud").replace(
+          /\/$/,
+          "",
+        );
 
         const params = new URLSearchParams();
         if (filter) {
@@ -325,8 +303,7 @@ export function registerCollectionTools(server: McpServer, db: JsonDB): void {
           const body = await res.json().catch(() => ({}));
           throw {
             status: res.status,
-            message:
-              (body as { error?: string }).error || res.statusText,
+            message: (body as { error?: string }).error || res.statusText,
           };
         }
 
