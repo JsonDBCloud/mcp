@@ -28,3 +28,5 @@ jobs:
       - run: npx tsup src/index.ts --format cjs,esm --clean
 
       - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
