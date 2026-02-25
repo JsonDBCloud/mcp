@@ -23,14 +23,20 @@
     "dev": "tsup src/index.ts --format cjs,esm --watch"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
     "@jsondb-cloud/client": "*",
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
-    "@types/node": "^20.0.0"
+    "vitest": "^4.0.18"
   },
   "keywords": [
     "jsondb",
