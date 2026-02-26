@@ -82,11 +82,14 @@ Add to `.cursor/mcp.json`:
 
 ### Environment Variables
 
-| Variable          | Required | Default                    | Description                                      |
-| ----------------- | -------- | -------------------------- | ------------------------------------------------ |
-| `JSONDB_API_KEY`  | Yes      | —                          | API key (`jdb_sk_live_...` or `jdb_sk_test_...`) |
-| `JSONDB_PROJECT`  | No       | `v1`                       | Project namespace                                |
-| `JSONDB_BASE_URL` | No       | `https://api.jsondb.cloud` | API base URL                                     |
+| Variable               | Required | Default                    | Description                                        |
+| ---------------------- | -------- | -------------------------- | -------------------------------------------------- |
+| `JSONDB_API_KEY`       | Yes      | —                          | API key (`jdb_sk_live_...` or `jdb_sk_test_...`)   |
+| `JSONDB_PROJECT`       | No       | `v1`                       | Project namespace                                  |
+| `JSONDB_BASE_URL`      | No       | `https://api.jsondb.cloud` | API base URL                                       |
+| `JSONDB_MCP_TRANSPORT` | No       | `stdio`                    | Transport type: `stdio` or `http`                  |
+| `JSONDB_MCP_PORT`      | No       | `3100`                     | HTTP server port (only used with `http` transport) |
+| `JSONDB_MCP_HOST`      | No       | `127.0.0.1`               | HTTP bind address (only used with `http` transport)|
 
 ## Tools
 
@@ -140,6 +143,32 @@ Add to `.cursor/mcp.json`:
 | `update_webhook` | Update webhook URL, events, or status           |
 | `delete_webhook` | Delete a webhook                                |
 | `test_webhook`   | Send a test event to verify delivery            |
+
+### Vectors
+
+| Tool                   | Description                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| `semantic_search`      | Search documents using natural language semantic similarity with relevance scores |
+| `store_with_embedding` | Store a document and auto-generate a vector embedding for semantic search        |
+
+## HTTP Transport
+
+By default the server uses **stdio** transport (for Claude Desktop, Cursor, etc.). To run as an HTTP server instead, set:
+
+```bash
+JSONDB_MCP_TRANSPORT=http JSONDB_API_KEY=jdb_sk_live_... npx @jsondb-cloud/mcp
+```
+
+This starts a Streamable HTTP server with the following endpoints:
+
+| Method   | Path      | Description                          |
+| -------- | --------- | ------------------------------------ |
+| `POST`   | `/mcp`    | MCP JSON-RPC requests                |
+| `GET`    | `/mcp`    | SSE stream for server notifications  |
+| `DELETE` | `/mcp`    | Session termination                  |
+| `GET`    | `/health` | Health check (returns `{"status":"ok"}`) |
+
+Configure the host and port with `JSONDB_MCP_HOST` and `JSONDB_MCP_PORT` (defaults: `127.0.0.1:3100`).
 
 ## Documentation
 
