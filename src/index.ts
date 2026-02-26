@@ -1,12 +1,15 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { JsonDB } from "@jsondb-cloud/client";
+import http from "node:http";
 
 import { registerDocumentTools } from "./tools/documents.js";
 import { registerCollectionTools } from "./tools/collections.js";
 import { registerSchemaTools } from "./tools/schemas.js";
 import { registerVersionTools } from "./tools/versions.js";
 import { registerWebhookTools } from "./tools/webhooks.js";
+import { registerVectorTools } from "./tools/vectors.js";
 import { registerCollectionResources } from "./resources/collections.js";
 
 /**
@@ -16,9 +19,12 @@ import { registerCollectionResources } from "./resources/collections.js";
  * to AI agents such as Claude Code, Cursor, Windsurf, and other MCP-compatible tools.
  *
  * Environment variables:
- *   JSONDB_API_KEY     — Required. Your jsondb.cloud API key (jdb_sk_live_... or jdb_sk_test_...)
- *   JSONDB_PROJECT     — Optional. Project to use (default: "v1"). Falls back to JSONDB_NAMESPACE.
- *   JSONDB_BASE_URL    — Optional. API base URL (default: "https://api.jsondb.cloud")
+ *   JSONDB_API_KEY          — Required. Your jsondb.cloud API key (jdb_sk_live_... or jdb_sk_test_...)
+ *   JSONDB_PROJECT          — Optional. Project to use (default: "v1"). Falls back to JSONDB_NAMESPACE.
+ *   JSONDB_BASE_URL         — Optional. API base URL (default: "https://api.jsondb.cloud")
+ *   JSONDB_MCP_TRANSPORT    — Optional. Transport type: "stdio" (default) or "http"
+ *   JSONDB_MCP_PORT         — Optional. HTTP port (default: 3100). Only used when transport is "http".
+ *   JSONDB_MCP_HOST         — Optional. HTTP bind address (default: "127.0.0.1"). Only used when transport is "http".
  */
 
 async function main(): Promise<void> {
@@ -55,13 +61,68 @@ async function main(): Promise<void> {
   registerSchemaTools(server, db);
   registerVersionTools(server, db);
   registerWebhookTools(server, db);
+  registerVectorTools(server, db);
 
   // Register all resources
   registerCollectionResources(server, db);
 
-  // Connect via stdio transport
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  // Choose transport based on environment
+  const transportType = process.env.JSONDB_MCP_TRANSPORT || "stdio";
+
+  if (transportType === "http") {
+    const port = parseInt(process.env.JSONDB_MCP_PORT || "3100", 10);
+    const host = process.env.JSONDB_MCP_HOST || "127.0.0.1";
+
+    const httpServer = http.createServer(async (req, res) => {
+      // Health check endpoint
+      if (req.method === "GET" && req.url === "/health") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok" }));
+        return;
+      }
+
+      // MCP endpoint — Streamable HTTP transport
+      if (req.method === "POST" && req.url === "/mcp") {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+        });
+        await server.connect(transport);
+        await transport.handleRequest(req, res);
+        return;
+      }
+
+      // GET /mcp — SSE stream for server-initiated notifications
+      if (req.method === "GET" && req.url === "/mcp") {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+        });
+        await server.connect(transport);
+        await transport.handleRequest(req, res);
+        return;
+      }
+
+      // DELETE /mcp — session termination
+      if (req.method === "DELETE" && req.url === "/mcp") {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+        });
+        await server.connect(transport);
+        await transport.handleRequest(req, res);
+        return;
+      }
+
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Not found" }));
+    });
+
+    httpServer.listen(port, host, () => {
+      console.error(`MCP HTTP server listening on ${host}:${port}`);
+    });
+  } else {
+    // Default: stdio transport
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+  }
 }
 
 main().catch((err) => {
