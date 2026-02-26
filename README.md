@@ -57,8 +57,9 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ### Claude Code
 
 ```bash
-claude mcp add jsondb -- npx -y @jsondb-cloud/mcp \
-  --env JSONDB_API_KEY=jdb_sk_live_...
+claude mcp add jsondb \
+  -e JSONDB_API_KEY=jdb_sk_live_... \
+  -- npx -y @jsondb-cloud/mcp
 ```
 
 ### Cursor
