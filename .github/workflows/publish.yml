@@ -32,3 +32,37 @@ jobs:
       - run: npx tsup src/index.ts --format cjs,esm --clean
 
       - run: npm publish --provenance --access public
+
+  publish-emily-mcp:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - run: npm install -g npm@latest
+      - run: npm ci
+
+      - name: Set version
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: npm version "1.0.${BUILD_NUMBER}" --no-git-tag-version
+
+      - name: Rebrand package as emily-mcp
+        run: node -e "
+          const pkg = require('./package.json');
+          pkg.name = 'emily-mcp';
+          pkg.bin = { 'emily-mcp': 'bin/emily-mcp.js' };
+          require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+      - run: npx tsup src/index.ts --format cjs,esm --clean
+
+      - run: npm publish --provenance --access public
