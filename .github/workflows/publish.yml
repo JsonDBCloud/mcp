@@ -33,7 +33,7 @@ jobs:
 
       - run: npm publish --provenance --access public
 
-  publish-emily-mcp:
+  publish-askemilia:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success'
     permissions:
@@ -55,11 +55,11 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
         run: npm version "1.0.${BUILD_NUMBER}" --no-git-tag-version
 
-      - name: Rebrand package as emily-mcp
+      - name: Rebrand package as askemilia
         run: node -e "
           const pkg = require('./package.json');
-          pkg.name = 'emily-mcp';
-          pkg.bin = { 'emily-mcp': 'bin/emily-mcp.js' };
+          pkg.name = 'askemilia';
+          pkg.bin = { 'askemilia': 'bin/askemilia.js' };
           require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
