@@ -82,14 +82,14 @@ Add to `.cursor/mcp.json`:
 
 ### Environment Variables
 
-| Variable               | Required | Default                    | Description                                        |
-| ---------------------- | -------- | -------------------------- | -------------------------------------------------- |
-| `JSONDB_API_KEY`       | Yes      | —                          | API key (`jdb_sk_live_...` or `jdb_sk_test_...`)   |
-| `JSONDB_PROJECT`       | No       | `v1`                       | Project namespace                                  |
-| `JSONDB_BASE_URL`      | No       | `https://api.jsondb.cloud` | API base URL                                       |
-| `JSONDB_MCP_TRANSPORT` | No       | `stdio`                    | Transport type: `stdio` or `http`                  |
-| `JSONDB_MCP_PORT`      | No       | `3100`                     | HTTP server port (only used with `http` transport) |
-| `JSONDB_MCP_HOST`      | No       | `127.0.0.1`               | HTTP bind address (only used with `http` transport)|
+| Variable               | Required | Default                    | Description                                         |
+| ---------------------- | -------- | -------------------------- | --------------------------------------------------- |
+| `JSONDB_API_KEY`       | Yes      | —                          | API key (`jdb_sk_live_...` or `jdb_sk_test_...`)    |
+| `JSONDB_PROJECT`       | No       | `v1`                       | Project namespace                                   |
+| `JSONDB_BASE_URL`      | No       | `https://api.jsondb.cloud` | API base URL                                        |
+| `JSONDB_MCP_TRANSPORT` | No       | `stdio`                    | Transport type: `stdio` or `http`                   |
+| `JSONDB_MCP_PORT`      | No       | `3100`                     | HTTP server port (only used with `http` transport)  |
+| `JSONDB_MCP_HOST`      | No       | `127.0.0.1`                | HTTP bind address (only used with `http` transport) |
 
 ## Tools
 
@@ -146,10 +146,10 @@ Add to `.cursor/mcp.json`:
 
 ### Vectors
 
-| Tool                   | Description                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------- |
+| Tool                   | Description                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------- |
 | `semantic_search`      | Search documents using natural language semantic similarity with relevance scores |
-| `store_with_embedding` | Store a document and auto-generate a vector embedding for semantic search        |
+| `store_with_embedding` | Store a document and auto-generate a vector embedding for semantic search         |
 
 Embeddings are generated **asynchronously by the jsondb.cloud backend** using **Ollama** (`nomic-embed-text`, 768 dimensions). The MCP server delegates to the REST API — no local embedding model or API key is needed.
 
@@ -163,11 +163,11 @@ JSONDB_MCP_TRANSPORT=http JSONDB_API_KEY=jdb_sk_live_... npx @jsondb-cloud/mcp
 
 This starts a stateless Streamable HTTP server that creates a fresh `McpServer` + transport per request (no session affinity required). Endpoints:
 
-| Method   | Path      | Description                          |
-| -------- | --------- | ------------------------------------ |
-| `POST`   | `/mcp`    | MCP JSON-RPC requests                |
-| `GET`    | `/mcp`    | SSE stream for server notifications  |
-| `DELETE` | `/mcp`    | Session termination                  |
+| Method   | Path      | Description                              |
+| -------- | --------- | ---------------------------------------- |
+| `POST`   | `/mcp`    | MCP JSON-RPC requests                    |
+| `GET`    | `/mcp`    | SSE stream for server notifications      |
+| `DELETE` | `/mcp`    | Session termination                      |
 | `GET`    | `/health` | Health check (returns `{"status":"ok"}`) |
 
 Configure the host and port with `JSONDB_MCP_HOST` and `JSONDB_MCP_PORT` (defaults: `127.0.0.1:3100`).
