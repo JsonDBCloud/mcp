@@ -73,6 +73,12 @@ async function main(): Promise<void> {
     const port = parseInt(process.env.JSONDB_MCP_PORT || "3100", 10);
     const host = process.env.JSONDB_MCP_HOST || "127.0.0.1";
 
+    // Single stateless transport — handles all requests without sessions
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
+    await server.connect(transport);
+
     const httpServer = http.createServer(async (req, res) => {
       // Health check endpoint
       if (req.method === "GET" && req.url === "/health") {
@@ -81,32 +87,8 @@ async function main(): Promise<void> {
         return;
       }
 
-      // MCP endpoint — Streamable HTTP transport
-      if (req.method === "POST" && req.url === "/mcp") {
-        const transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: undefined,
-        });
-        await server.connect(transport);
-        await transport.handleRequest(req, res);
-        return;
-      }
-
-      // GET /mcp — SSE stream for server-initiated notifications
-      if (req.method === "GET" && req.url === "/mcp") {
-        const transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: undefined,
-        });
-        await server.connect(transport);
-        await transport.handleRequest(req, res);
-        return;
-      }
-
-      // DELETE /mcp — session termination
-      if (req.method === "DELETE" && req.url === "/mcp") {
-        const transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: undefined,
-        });
-        await server.connect(transport);
+      // MCP endpoint — delegate to the shared stateless transport
+      if (req.url === "/mcp") {
         await transport.handleRequest(req, res);
         return;
       }
