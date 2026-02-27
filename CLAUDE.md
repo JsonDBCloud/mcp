@@ -32,7 +32,11 @@ Each tool category has its own file in `src/tools/` exporting a `register*Tools(
 
 ### Transport Modes
 - **stdio** (default) — Standard MCP stdio transport for desktop clients
-- **http** — Streamable HTTP transport via `StreamableHTTPServerTransport`. Serves MCP on `POST /mcp`, SSE on `GET /mcp`, session termination on `DELETE /mcp`, and a health check on `GET /health`.
+- **http** — Streamable HTTP transport via `StreamableHTTPServerTransport`. Creates a fresh `McpServer` + transport per request (stateless — no session affinity required). Serves MCP on `POST /mcp`, SSE on `GET /mcp`, session termination on `DELETE /mcp`, and a health check on `GET /health`.
+
+### Embeddings
+- Vector/semantic search embeddings are generated **asynchronously by the jsondb.cloud backend** using **Ollama** (`nomic-embed-text` model, **768 dimensions**).
+- The MCP server itself does not call any embedding API — it delegates to the jsondb.cloud REST API, which handles embedding generation server-side.
 
 ### Helper Utilities
 `src/tools/_helpers.ts` provides shared functions used by tools that call the REST API directly (e.g., vector tools):

@@ -151,6 +151,8 @@ Add to `.cursor/mcp.json`:
 | `semantic_search`      | Search documents using natural language semantic similarity with relevance scores |
 | `store_with_embedding` | Store a document and auto-generate a vector embedding for semantic search        |
 
+Embeddings are generated **asynchronously by the jsondb.cloud backend** using **Ollama** (`nomic-embed-text`, 768 dimensions). The MCP server delegates to the REST API — no local embedding model or API key is needed.
+
 ## HTTP Transport
 
 By default the server uses **stdio** transport (for Claude Desktop, Cursor, etc.). To run as an HTTP server instead, set:
@@ -159,7 +161,7 @@ By default the server uses **stdio** transport (for Claude Desktop, Cursor, etc.
 JSONDB_MCP_TRANSPORT=http JSONDB_API_KEY=jdb_sk_live_... npx @jsondb-cloud/mcp
 ```
 
-This starts a Streamable HTTP server with the following endpoints:
+This starts a stateless Streamable HTTP server that creates a fresh `McpServer` + transport per request (no session affinity required). Endpoints:
 
 | Method   | Path      | Description                          |
 | -------- | --------- | ------------------------------------ |
