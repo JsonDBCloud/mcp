@@ -49,22 +49,18 @@ async function main(): Promise<void> {
     baseUrl,
   });
 
-  // Create the MCP server
-  const server = new McpServer({
-    name: "jsondb-cloud",
-    version: "1.0.0",
-  });
-
-  // Register all tools
-  registerDocumentTools(server, db);
-  registerCollectionTools(server, db);
-  registerSchemaTools(server, db);
-  registerVersionTools(server, db);
-  registerWebhookTools(server, db);
-  registerVectorTools(server, db);
-
-  // Register all resources
-  registerCollectionResources(server, db);
+  /** Create a fresh MCP server instance with all tools registered */
+  function createServer(): McpServer {
+    const s = new McpServer({ name: "jsondb-cloud", version: "1.0.0" });
+    registerDocumentTools(s, db);
+    registerCollectionTools(s, db);
+    registerSchemaTools(s, db);
+    registerVersionTools(s, db);
+    registerWebhookTools(s, db);
+    registerVectorTools(s, db);
+    registerCollectionResources(s, db);
+    return s;
+  }
 
   // Choose transport based on environment
   const transportType = process.env.JSONDB_MCP_TRANSPORT || "stdio";
@@ -72,12 +68,6 @@ async function main(): Promise<void> {
   if (transportType === "http") {
     const port = parseInt(process.env.JSONDB_MCP_PORT || "3100", 10);
     const host = process.env.JSONDB_MCP_HOST || "127.0.0.1";
-
-    // Single stateless transport — handles all requests without sessions
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined,
-    });
-    await server.connect(transport);
 
     const httpServer = http.createServer(async (req, res) => {
       // Health check endpoint
@@ -87,8 +77,17 @@ async function main(): Promise<void> {
         return;
       }
 
-      // MCP endpoint — delegate to the shared stateless transport
+      // MCP endpoint — new server+transport per request (stateless)
       if (req.url === "/mcp") {
+        const server = createServer();
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+        });
+        res.on("close", () => {
+          transport.close().catch(() => {});
+          server.close().catch(() => {});
+        });
+        await server.connect(transport);
         await transport.handleRequest(req, res);
         return;
       }
@@ -102,6 +101,7 @@ async function main(): Promise<void> {
     });
   } else {
     // Default: stdio transport
+    const server = createServer();
     const transport = new StdioServerTransport();
     await server.connect(transport);
   }
