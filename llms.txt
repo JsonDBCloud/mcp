@@ -84,6 +84,14 @@ Optional variables:
 
 For complete API reference with all parameters, error types, and examples, see llms-full.txt.
 
-Project docs: https://jsondb.cloud/docs
-npm: https://www.npmjs.com/package/@jsondb-cloud/mcp
-GitHub: https://github.com/JsonDBCloud/mcp
+## Links
+
+- Docs: https://jsondb.cloud/docs/mcp
+- npm: https://www.npmjs.com/package/@jsondb-cloud/mcp
+- GitHub: https://github.com/JsonDBCloud/mcp
+
+## Related Packages
+
+- `@jsondb-cloud/client` — JavaScript/TypeScript SDK — https://www.npmjs.com/package/@jsondb-cloud/client
+- `@jsondb-cloud/cli` — CLI tool — https://www.npmjs.com/package/@jsondb-cloud/cli
+- `jsondb-cloud` (PyPI) — Python SDK — https://pypi.org/project/jsondb-cloud/
