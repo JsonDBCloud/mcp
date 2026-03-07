@@ -1,0 +1,71 @@
+{
+  "name": "@jsondb-cloud/mcp",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) server for jsondb.cloud — lets AI agents interact with your JSON database",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "jsondb-mcp": "bin/jsondb-mcp.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --clean",
+    "dev": "tsup src/index.ts --format cjs,esm --watch",
+    "lint": "eslint src/",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@jsondb-cloud/client": "^1.0.18",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.18"
+  },
+  "keywords": [
+    "jsondb",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agent",
+    "json",
+    "database",
+    "claude",
+    "cursor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JsonDBCloud/mcp.git"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
+}
